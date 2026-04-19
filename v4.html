@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HLTH 392 Final Exam Practice — Set 4</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;padding:2rem 1rem;min-height:100vh}
+.exam-wrap{max-width:700px;margin:0 auto}
+.header{margin-bottom:1.5rem}
+.header h1{font-size:22px;font-weight:500;margin-bottom:4px}
+.header p{font-size:13px;color:#666}
+.progress-bar{background:#e0e0d8;border-radius:4px;height:6px;margin:12px 0}
+.progress-fill{height:6px;border-radius:4px;background:#1D9E75;transition:width 0.3s}
+.stats{display:flex;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap}
+.stat{background:#fff;border:0.5px solid #ddd;border-radius:8px;padding:10px 16px;font-size:13px;color:#666;flex:1;min-width:80px;text-align:center}
+.stat span{display:block;font-size:20px;font-weight:500;color:#1a1a1a}
+.section-header{font-size:12px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:1.5rem 0 0.75rem;padding-bottom:6px;border-bottom:1px solid #e0e0d8}
+.qcard{background:#fff;border:1px solid #e0e0d8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:10px}
+.qcard.answered-correct{border-color:#1D9E75}
+.qcard.answered-wrong{border-color:#E24B4A}
+.q-num{font-size:12px;color:#888;margin-bottom:6px}
+.q-stem{font-size:14px;color:#1a1a1a;line-height:1.6;margin-bottom:10px;font-weight:500}
+.options{display:flex;flex-direction:column;gap:6px}
+.opt-btn{text-align:left;background:#f5f5f0;border:1px solid #e0e0d8;border-radius:8px;padding:8px 12px;font-size:13px;color:#1a1a1a;cursor:pointer;transition:background 0.15s;font-family:inherit}
+.opt-btn:hover:not(:disabled){background:#eaeae4}
+.opt-btn.correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.opt-btn.wrong{background:#FCEBEB;border-color:#E24B4A;color:#501313}
+.opt-btn.reveal-correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.feedback{font-size:12px;margin-top:8px;padding:8px 10px;border-radius:8px;line-height:1.5}
+.feedback.correct{background:#E1F5EE;color:#085041}
+.feedback.wrong{background:#FCEBEB;color:#501313}
+.tf-row{display:flex;gap:8px}
+.tf-btn{flex:1;background:#f5f5f0;border:1px solid #e0e0d8;border-radius:8px;padding:8px;font-size:13px;color:#1a1a1a;cursor:pointer;font-family:inherit}
+.tf-btn:hover:not(:disabled){background:#eaeae4}
+.tf-btn.correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.tf-btn.wrong{background:#FCEBEB;border-color:#E24B4A;color:#501313}
+.tf-btn.reveal-correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.sa-area{width:100%;min-height:90px;border:1px solid #e0e0d8;border-radius:8px;padding:8px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#f5f5f0;resize:vertical;margin-bottom:8px}
+.sa-reveal-btn{background:#f5f5f0;border:1px solid #ccc;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;color:#1a1a1a;font-family:inherit}
+.sa-reveal-btn:hover{background:#eaeae4}
+.model-ans{margin-top:8px;padding:10px;background:#f5f5f0;border-left:3px solid #1D9E75;border-radius:0 8px 8px 0;font-size:13px;color:#1a1a1a;line-height:1.6}
+.model-ans strong{font-weight:500}
+.result-card{background:#fff;border:1px solid #e0e0d8;border-radius:12px;padding:1.5rem;text-align:center;margin-top:1.5rem;display:none}
+.result-card h3{font-size:22px;font-weight:500;margin-bottom:6px}
+.result-card p{font-size:14px;color:#666;margin-bottom:4px}
+.reset-btn{margin-top:12px;background:#fff;border:1px solid #ccc;border-radius:8px;padding:8px 20px;font-size:14px;cursor:pointer;color:#1a1a1a;font-family:inherit}
+.reset-btn:hover{background:#f5f5f0}
+</style>
+</head>
+<body>
+<div class="exam-wrap">
+<div class="header">
+<h1>HLTH 392 final exam practice — set 4</h1>
+<p>44 tough questions — all new. MC, true/false, short answer. No repeats from sets 1–3.</p>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+<div class="stats">
+<div class="stat"><span id="stat-done">0</span>answered</div>
+<div class="stat"><span id="stat-correct">0</span>correct</div>
+<div class="stat"><span id="stat-wrong">0</span>wrong</div>
+<div class="stat"><span id="stat-pct">—</span>score</div>
+</div>
+<div id="exam-body"></div>
+<div class="result-card" id="result-card">
+<h3 id="res-score"></h3>
+<p id="res-msg"></p>
+<button class="reset-btn" onclick="resetExam()">Reset exam</button>
+</div>
+</div>
+
+<script>
+const Q=[
+{sec:"Multiple choice",type:"mc",stem:"A provincial government passes legislation requiring all home care agencies to use a single standardized assessment tool. Using systems thinking, which component does this legislation primarily represent?",opts:["An element, because the legislation is an actor in the system","An interconnection, because it standardizes how elements share data and relate to one another","A purpose, because it defines the goal of home care","A function, because it describes what each home care worker must do"],ans:1,exp:"Legislation mandating a common assessment tool is an interconnection — it governs how elements (agencies, clinicians, patients) relate to each other and share information. The common language created by a mandated tool is exactly what enables elements to connect meaningfully toward a shared purpose."},
+{sec:"Multiple choice",type:"mc",stem:"Which of the following best explains why 'improvement in psychotic symptoms' is used as a key indicator in the Ontario Mental Health Reporting System, according to the course?",opts:["It is the easiest symptom cluster to measure reliably across clinical settings","It demonstrates to clinicians that treatment works, gives patients hope, and shows government that costs are justified by outcomes","It is mandated by the Canada Health Act as a required reporting metric","It is the only symptom that resolves fully with pharmaceutical intervention"],ans:1,exp:"The course explicitly noted three audiences for outcome data: clinicians want to know treatment works, patients and the public gain hope that mental illness symptoms can improve, and governments need evidence that program costs are justified. Improvement in psychotic symptoms across all disorder groups serves all three simultaneously."},
+{sec:"Multiple choice",type:"mc",stem:"Alejandra has generalized anxiety disorder and a concurrent cannabis use disorder. She and her therapist have established a treatment plan supporting her goals of returning to university and living independently, even though she continues to use lower-THC cannabis products. What term best describes this approach to care?",opts:["Stigma-informed care","Strengths-based care","Deinstitutionalization","Recovery-oriented care"],ans:3,exp:"Recovery-oriented care frames recovery as a non-linear process emphasizing the person's own goals, community engagement, hope, and connectedness — not necessarily total abstinence. Supporting Alejandra's goals while working around her ongoing cannabis use is the definition of recovery orientation. This was directly tested on the midterm (Q11)."},
+{sec:"Multiple choice",type:"mc",stem:"Ontario's 30-day psychiatric hospital readmission rate of 13.7% — cited in the course as above the national average — is best understood as an indicator of which system failure?",opts:["Excess capacity in inpatient psychiatric units","Inadequate community follow-up care after discharge, reflecting a breakdown in the hospital-to-community transition","Over-prescribing of antipsychotics in the community","Too many voluntary admissions that could be managed in outpatient settings"],ans:1,exp:"A high 30-day readmission rate signals that people are being discharged without adequate community supports to prevent relapse — a failure of the hospital-to-community transition. This was used in the course's policy assignment context to motivate the need for wage parity and community mental health workforce investment."},
+{sec:"Multiple choice",type:"mc",stem:"The Discharge Abstract Database in Ontario covers hospital records for most types of care but has a notable exclusion. What is it?",opts:["Emergency department visits","Outpatient physician billing","Inpatient psychiatry in Ontario","Complex continuing care"],ans:2,exp:"The Discharge Abstract Database covers hospital records for any type of care except inpatient psychiatry in Ontario — which is covered instead by the Ontario Mental Health Reporting System (OMHRS). This is a key distinction for understanding which data source applies to which clinical setting."},
+{sec:"Multiple choice",type:"mc",stem:"A researcher uses OHIP billing data to study patterns of physician visits among people with depression. Which of the following data elements would this dataset NOT reliably provide?",opts:["The ICD-10 code associated with each physician visit","Whether the visit was inpatient or outpatient","The type of physician seen","The patient's living arrangements and social supports"],ans:3,exp:"OHIP billing data includes ICD-10 codes, type of physician, type of visit (inpatient vs outpatient), and basic demographics. It does not capture social determinants like living arrangements, social supports, or functional status — those require assessment instruments like interRAI."},
+{sec:"Multiple choice",type:"mc",stem:"Which of the following is the correct understanding of 'predictive validity' as described in the Hirdes reading — and why is it considered the most important and difficult form of validity for interRAI?",opts:["It measures whether different clinicians get consistent scores — difficult because training varies across settings","It measures whether the instrument correlates with gold standard measures — difficult because no universal gold standard exists","It measures whether assessment data predicts future clinical outcomes — difficult because it requires longitudinal data and the outcomes must be clinically meaningful","It measures whether items make conceptual sense — difficult because clinical experts disagree on definitions"],ans:2,exp:"Predictive validity measures whether an instrument's scores predict what actually happens to patients over time — future deterioration, hospitalization, or recovery. It is the most important form because the purpose of assessment is to guide intervention. It is the most difficult because it requires large longitudinal datasets and the outcomes must be clinically meaningful and well-defined."},
+{sec:"Multiple choice",type:"mc",stem:"According to the Hirdes reading, which of the following is a key reason why intellectual property and licensing requirements make conglomerated assessment systems particularly problematic?",opts:["Licensed tools cost too much for small community agencies to afford","If a consensus set of licensed tools is assembled, the IP agreements across multiple proprietary tools may be unresolvable, blocking implementation at scale","Licensed tools cannot be used in government-funded settings","Proprietary tools cannot be scored by non-clinical staff"],ans:1,exp:"Hirdes identifies that even if clinicians reached consensus on which licensed tools to use, the intellectual property and licensing agreements across multiple proprietary instruments may be practically impossible to resolve — blocking system-wide implementation. This is one of several reasons a single integrated system like interRAI is preferable to a conglomeration of separately licensed tools."},
+{sec:"Multiple choice",type:"mc",stem:"A long-term care facility wants to compare its rate of antipsychotic use in residents without behavioural symptoms against provincial benchmarks. Which dataset and instrument combination discussed in the course would best support this?",opts:["OHIP billing data and the Discharge Abstract Database","interRAI MDS and physician billing data","The Ontario Mental Health Reporting System and Form 3 data","NACRS emergency data and interRAI Community Mental Health"],ans:1,exp:"The antipsychotic study discussed in the course used interRAI MDS (Minimum Data Set — used in long-term care) combined with physician billing data to identify residents with dementia, classify presence or absence of behavioural/psychotic symptoms, and track antipsychotic prescribing patterns. This combination is standard for LTC quality indicator research."},
+{sec:"Multiple choice",type:"mc",stem:"In the context of the Gomes et al. study, what was the primary reason that people in the SOS program had higher rates of HIV at baseline compared to the unexposed comparison group?",opts:["The SOS program specifically recruited people living with HIV as an eligibility criterion","SOS clients were drawn from a higher-risk population with more complex health and social needs than matched comparison individuals","HIV rates were artificially elevated due to more frequent testing in the SOS program","The comparison group was drawn from a low-risk population making the comparison invalid"],ans:1,exp:"SOS clients came from a high-risk population — those whose needs were not met by traditional addiction treatment, often experiencing homelessness and street involvement. The matched comparison group, while demographically similar, did not share the same complexity of health and social circumstances, which is acknowledged as a key limitation of the study design."},
+{sec:"Multiple choice",type:"mc",stem:"Which of the following statements about decriminalization is best supported by the scoping review discussed in the course?",opts:["Decriminalization consistently reduces rates of drug use across all contexts studied","Decriminalization has been shown to reliably improve mental health and addiction treatment outcomes","Most decriminalization research focuses narrowly on prevalence of use, leaving health system outcomes largely unstudied","Decriminalization increases drug use rates by removing deterrence effects"],ans:2,exp:"The scoping review of 114 studies found that fewer than 10% examined justice involvement, mental health, or addiction treatment outcomes — the vast majority focused on prevalence of use. This narrow evidence base makes it impossible to draw conclusions about health system effects of decriminalization without better-designed studies and accompanying investment in supports."},
+{sec:"Multiple choice",type:"mc",stem:"Ontario's 2020 'Roadmap to Wellness' strategy was administered through which organizational structure?",opts:["Directly through the Ministry of Health's CYMH branch","Through Ontario Health and its Mental Health and Addictions Centre of Excellence","Through a consortium of lead agencies reporting to MCCSS","Through Children's Mental Health Ontario in partnership with CAMH"],ans:1,exp:"The Roadmap to Wellness was Ontario's mental health and addictions strategy, and Ontario Health — through its Mental Health and Addictions Centre of Excellence — was given responsibility for operationalizing it. This includes overseeing Youth Wellness Hubs and coordinating with the CYMH sector."},
+{sec:"Multiple choice",type:"mc",stem:"The Auditor General found that a 2009 Select Committee on Mental Health and Addictions recommended consolidating all mental health and addictions programs into one ministry. What did the audit find more than a decade later?",opts:["The consolidation had been fully implemented by 2018","Adult and CYMH mental health systems remained siloed with no defined timelines for consolidation","Consolidation had been partially achieved for addictions services but not for mental health","The recommendation was formally rejected by the government in 2015"],ans:1,exp:"Over a decade after the 2010 Select Committee report recommended consolidation, the Auditor General found that adult and child/youth mental health services were still not consolidated — operating under different ministries with no clear timelines, indicators, or targets to measure progress toward integration."},
+{sec:"Multiple choice",type:"mc",stem:"Which of the following best explains why 'gaming' of wait time indicators is a concern raised in the Auditor General report?",opts:["Agencies fabricate client records to receive higher funding","Agencies manipulate how wait times are calculated — such as removing clients from wait lists before service begins — making reported wait times appear shorter than the true wait experienced by clients","Agencies intentionally delay services to keep clients on wait lists longer to justify funding requests","The ministry inflates wait time targets to make performance look better than it is"],ans:1,exp:"Gaming in this context refers to agencies removing clients from wait lists before service actually starts — meaning the measured wait (from 'wait list in' to 'wait list out') is shorter than the true client experience. The Auditor General found that 45 agencies had clients whose wait list out date differed from their program start date by an average of 4 additional days not captured in reported figures."},
+{sec:"Multiple choice",type:"mc",stem:"According to the interRAI ChYMH marginalization data presented in the course, what is the relationship between level of marginalization and substance use risk among clinical youth?",opts:["Higher marginalization is associated with lower substance use risk due to protective community factors","There is no significant association between marginalization and substance use in clinical populations","Higher marginalization is associated with higher relative risk of substance use — a dose-response relationship","Substance use risk is determined by diagnosis, not by marginalization indicators"],ans:2,exp:"The relative risk data from the interRAI ChYMH showed a dose-response relationship: as the number of marginalization indicators increased, the likelihood of substance use increased proportionally. This finding reinforces the upstream social determinants framework — marginalization is not just correlated with mental illness, it compounds risk for substance use as well."},
+{sec:"Multiple choice",type:"mc",stem:"A youth in northern Ontario requires secure treatment — continuous restrictions due to risk of serious self-harm. The nearest secure treatment facility is in Toronto, 900 km away. Which piece of legislation does this geographic gap directly contradict?",opts:["The Canada Health Act, which requires equal access to insured services regardless of province","The Child Youth and Family Services Act 2017, which states services should be provided in a manner that respects a child's need for continuity of care and stable relationships within a family and cultural environment","Ontario Regulation 299/10, which mandates that all CYMH services be available within 100 km of any child","The Mental Health Act, which requires psychiatric care to be delivered in the least restrictive setting"],ans:1,exp:"The Child Youth and Family Services Act 2017 explicitly states that services should be provided in a manner that respects a child's or young person's need for continuity of care and stable relationships within a family and cultural environment. Requiring a youth from northern Ontario to travel to Toronto for secure treatment directly contradicts this principle."},
+{sec:"Multiple choice",type:"mc",stem:"In the Domenech-Abella study, emotional loneliness items measured feelings such as lacking people to rely on and lacking close trusted relationships. Social loneliness items measured feelings such as general emptiness and feeling rejected. Why did emotional loneliness emerge as the stronger mediator, according to the study's discussion?",opts:["Emotional loneliness is more common than social loneliness in older adult populations","Social loneliness causes boredom and depression while emotional loneliness is linked to anxiety and isolation — and the environmental factors studied produced stronger anxiety and isolation pathways","Older adults were more willing to disclose emotional loneliness than social loneliness due to less stigma","Emotional loneliness items had higher reliability coefficients making them more sensitive to change"],ans:1,exp:"The discussion section of Domenech-Abella distinguished the two types: social loneliness is linked to boredom and depression, while emotional loneliness is linked to anxiety and isolation. The environmental factors in the study — low mobility, unsafe neighbourhoods, low social cohesion — produce effects primarily through anxiety, fear, and the absence of deep trusting relationships, which maps more onto emotional loneliness than social loneliness."},
+{sec:"Multiple choice",type:"mc",stem:"According to the Week 12 guest lecture, why was the interRAI Check-Up Self-Report developed alongside the existing Home Care assessment?",opts:["Because the Home Care assessment was too expensive to administer in primary care settings","Because a shorter, optional tool was needed for primary care settings where a full mandated home assessment is not appropriate, and to broaden surveillance beyond long-stay home care clients","Because provincial policy required a self-administered tool for all community-dwelling older adults over 65","Because the Home Care assessment lacked items on loneliness and social isolation"],ans:1,exp:"The Check-Up Self-Report is a shorter, optional instrument used in primary care settings — it was developed to extend interRAI data collection beyond the mandatory long-stay home care population to community-dwelling older adults who wouldn't otherwise receive an assessment. The challenge noted in the lecture was making the two tools comparable despite their different item sets."},
+{sec:"Multiple choice",type:"mc",stem:"Which of the following most accurately describes 'concurrent disorders' and why they present a governance challenge in Ontario's CYMH system?",opts:["Concurrent disorders refer to two physical health conditions occurring together — they are managed through MCCSS","Concurrent disorders are co-occurring mental illness and substance use disorders — CYMH agencies are not funded to deliver addiction services, meaning children with both conditions fall through the gap between siloed systems","Concurrent disorders refer to a child receiving services from two different agencies simultaneously — this is prohibited under MOH policy","Concurrent disorders are managed through specialized tertiary care hospitals funded separately from the CYMH program"],ans:1,exp:"Concurrent disorders = co-occurring mental health and substance use conditions. The Auditor General found a critical gap: CYMH agencies are funded for mental health services but not addiction services. Children with both conditions cannot access integrated care, and agencies reported that clinical staff lacked training for concurrent disorder treatment. The gap persists because the two service sectors remain siloed."},
+{sec:"Multiple choice",type:"mc",stem:"A geriatric psychiatrist in Ontario is asked to consult on a long-term care resident with high depression scores and delusions. According to the study discussed in lecture, how likely is it that this consultation actually happens?",opts:["Very likely — most LTC facilities have embedded geriatric psychiatry services","Approximately 50% of residents who meet criteria receive a consult","Unlikely — only about 4.7% of those meeting clinical criteria for a geriatric psychiatry consult actually receive one","Certain — provincial policy mandates a geriatric psychiatry review for all LTC residents with psychosis"],ans:2,exp:"The study found that 41% of LTC residents met clinical criteria for a geriatric psychiatry consult, but only 4.7% actually received a visit — meaning demand was nearly 10 times the available supply. This massive gap illustrates the underservicing of mental health needs in long-term care settings."},
+{sec:"Multiple choice",type:"mc",stem:"Which of the following best captures the policy paradox created by Ontario's transition of 9 supervised injection sites into HART Hubs under the Safer Streets, Stronger Communities Act?",opts:["The province expanded harm reduction services while also increasing criminal penalties for trafficking","The province replaced evidence-based harm reduction services (safer supply, supervised consumption) with treatment and recovery hubs — removing interventions with demonstrated mortality reductions in favour of a recovery-only model","The province opened new HART Hubs while simultaneously defunding all community mental health agencies","The province mandated safer supply programs at all HART Hubs while restricting access to naloxone"],ans:1,exp:"The policy paradox is that supervised consumption sites and safer supply programs have demonstrated evidence for reducing overdose deaths (as shown in the Gomes reading and the geographic SCS study), yet the Ontario government replaced them with HART Hubs that explicitly prohibit these interventions — prioritizing a recovery and abstinence ideology over harm reduction evidence."},
+{sec:"Multiple choice",type:"mc",stem:"The course describes 'informal decriminalization' as occurring in Belleville. What does this mean?",opts:["The city of Belleville passed a municipal by-law decriminalizing small amounts of drug possession","Police officers informally stopped arresting people for drug use despite no legal exemption from the Criminal Code, while still arresting for property crimes","The court system formally dropped all drug-related charges for people with diagnosed mental illness","Belleville received a federal exemption from the Controlled Drugs and Substances Act"],ans:1,exp:"Informal decriminalization refers to police officers exercising discretion — walking past people using drugs and not arresting them for use, despite no legal exemption existing. The officer in the CBC video alluded to this: only arresting for breaking and entering or vandalism, not drug use itself. This is de facto decriminalization without any legal framework or accompanying supports."},
+{sec:"True/False",type:"tf",stem:"According to the course, the 'function or purpose' of a mental health system refers to the physical infrastructure — buildings and equipment — that enable care delivery.",ans:false,exp:"False. Function or purpose refers to the shared goal the system is trying to achieve — the policy problem it is solving, the vision of recovery it is working toward, or the illness it is addressing. Physical infrastructure would be an element."},
+{sec:"True/False",type:"tf",stem:"Under Ontario's HCCA, a Substitute Decision Maker must always follow a capable patient's most recently expressed prior wishes when making treatment decisions on their behalf.",ans:true,exp:"True. The SDM hierarchy under the HCCA requires that the SDM follow the incapable person's prior capable wishes if applicable — not make independent judgments about what they think is best. Only if no prior capable wish exists does the SDM act in the person's best interests. The midterm confirmed this framing (Q13)."},
+{sec:"True/False",type:"tf",stem:"Ontario's National Ambulatory Care Reporting System (NACRS) captures data from emergency departments and ambulatory care settings using ICD-10 codes, dates, CTAS scores, and basic demographics.",ans:true,exp:"True. NACRS is one of the key administrative datasets described in the Week 6 sidebar. It covers emergency department and ambulatory care visits using ICD-10 codes, with dates, times, CTAS (triage acuity) scores, and basic demographic information."},
+{sec:"True/False",type:"tf",stem:"According to the course, 'anomie' as theorized by Emile Durkheim refers to a state of feeling emotionally drained and disconnected from one's own sense of identity.",ans:false,exp:"False. Anomie refers to a perceived lack of fit with society's norms, standards, and values — a sense of normlessness or disconnection from the social fabric. The midterm (Q18) tested this and the correct answer was False for a statement conflating anomie with emotional exhaustion. Feeling emotionally drained is not anomie."},
+{sec:"True/False",type:"tf",stem:"The interRAI suite covers the full lifespan — from newborns to older adults — and includes instruments for emergency services, forensic and addiction settings, intellectual disability, home care, and inpatient psychiatry.",ans:true,exp:"True. The Hirdes reading describes instruments spanning inpatient psychiatry, community mental health, emergency and crisis services, police and EMS settings, forensic and addiction services, intellectual disability, home care, nursing homes, and child/youth settings. A newborn-to-three-year-old instrument was noted as in development at time of writing."},
+{sec:"True/False",type:"tf",stem:"According to the Gomes et al. study, the SOS program at London InterCommunity Health Centre was Canada's first formal safer opioid supply program, launched in 2020 following Health Canada funding.",ans:false,exp:"False. The LIHC SOS program was launched in 2016 — not 2020. Health Canada began funding pilot SOS programs in 2020, but LIHC's program predated that federal investment by four years and was Canada's first formal SOS program."},
+{sec:"True/False",type:"tf",stem:"The Auditor General report found that Ontario Health's mandate, as defined by the Connecting Care Act and the Mental Health and Addictions Centre of Excellence Act, explicitly excludes child and youth mental health services.",ans:false,exp:"False. The Auditor General specifically noted that neither the Centre of Excellence Act nor the Connecting Care Act excludes CYMH services from Ontario Health's mandate. The problem was that in practice, Ontario Health's scope did not include the children and youth sector — an operational gap, not a legislative exclusion."},
+{sec:"True/False",type:"tf",stem:"A key finding from the interRAI ChYMH quality indicator data presented in the course is that rates of improvement and worsening across Ontario CYMH agencies were as strong as one would hope for a well-functioning system.",ans:false,exp:"False. The professor explicitly noted that the quality indicator numbers — rates of improvement and worsening across agencies — were not as good as one would want. The data revealed considerable variation across agencies and outcomes that fell short of system expectations, which is the point of having comparable quality indicators in the first place."},
+{sec:"True/False",type:"tf",stem:"According to the Domenech-Abella study, improving neighbourhood physical characteristics such as mobility and safety can reduce loneliness and subsequently improve mental health among older adults.",ans:true,exp:"True. This is a direct implication from the findings and is stated explicitly in the discussion: improving neighbourhood physical characteristics such as mobility and safety would result in decreased loneliness and a subsequent increase in mental health. This formed the basis for the study's policy implications."},
+{sec:"True/False",type:"tf",stem:"The course identifies cannabis use disorder as a risk factor for developing dementia, based on a study showing elevated dementia risk following hospitalization for cannabis use disorder.",ans:true,exp:"True. One of the studies discussed in the Week 12 lecture found that the risk of developing dementia was elevated among people hospitalized for a cannabis use disorder — a finding that contributes to the cannabis paradox for older adults (guidelines caution against use; research increasingly reveals adverse cognitive outcomes)."},
+{sec:"True/False",type:"tf",stem:"According to the course, 'brain-mind relationship' is the term used to describe how positive environmental exposures reinforce positive emotions and behaviours while negative exposures reinforce stress and hopelessness.",ans:false,exp:"False. The midterm (Q16) tested this — the correct term is 'exposure therapy.' Brain-mind relationship is a different concept. Exposure therapy describes the process by which environmental exposures shape behavioural and emotional responses. Answer on the midterm was A: Exposure therapy."},
+{sec:"True/False",type:"tf",stem:"The Knowledge Institute on Child and Youth Mental Health operates out of the Children's Hospital of Eastern Ontario and functions as a centre of excellence to mobilize evidence and accelerate system change.",ans:true,exp:"True. The Knowledge Institute is described in both the Auditor General report and the course notes as operating out of CHEO and serving as a centre of excellence — funding innovation initiatives, mobilizing evidence, and supporting system-level change across the CYMH sector in Ontario."},
+{sec:"True/False",type:"tf",stem:"According to the course, peer-based supports such as Alcoholics Anonymous represent a contemporary innovation in addiction care that emerged only in the last 15 years.",ans:false,exp:"False. Peer-based addiction supports have a long history — sobriety circles grounded in Indigenous healing practices date to as early as 1750, and Alcoholics Anonymous was founded in 1935. Peer-based care is not a recent innovation; it is a historical foundation of addiction support that predates the formal medical treatment system."},
+{sec:"Short answer",type:"sa",stem:"A provincial government is considering two approaches to addressing the shortage of mental health workers in community agencies: (A) increasing wages in community agencies to match hospital-based workers, or (B) expanding hospital-based inpatient psychiatric beds. Using course concepts — including at least one reading — argue which option better serves the goal of a high-functioning mental health system. (4 marks)",model:"<strong>Option A — wage parity — is more aligned with a high-functioning mental health system.</strong><br><br><strong>Systems argument:</strong> A high-functioning mental health system requires elements, interconnections, and a shared purpose. Community mental health agencies are critical elements in the stepped care model — they provide early psychosis intervention, assertive community treatment, transitional care, and supportive housing that prevent hospitalization in the first place. If these elements are chronically understaffed due to wage disparities, the interconnections between hospital and community break down. Ontario's 13.7% 30-day readmission rate signals exactly this failure — people discharge into a community system without adequate staffing to follow through on care plans.<br><br><strong>Evidence from the course:</strong> Early psychosis interventions — delivered in community settings — reduce hospitalizations by close to 70%. The At Home/Chez Soi trial showed Housing First with Assertive Community Treatment was cost-effective across all subgroups, with two-thirds of costs offset by system savings. Expanding hospital beds (Option B) does not address the upstream failure — it adds capacity to a more expensive, more restrictive level of care rather than investing in the community step of the stepped care model that prevents escalation to that level.<br><br><strong>Conclusion:</strong> Option A targets the interconnection failure — the workforce gap that prevents the community tier from functioning. Option B is reactive, more expensive per patient, and does not prevent the conditions that drive hospitalization. A high-functioning system invests in the lower steps of the stepped care model first."},
+{sec:"Short answer",type:"sa",stem:"Using the Hirdes et al. reading, explain what an integrated assessment system must do that a conglomerated system cannot. Then explain how the interRAI suite achieves integration across three different dimensions discussed in the reading. (3 marks)",model:"<strong>What integration must achieve that conglomeration cannot:</strong> An integrated system must apply a common language, common conceptual basis, and common data collection methods across care settings so that data is linked, longitudinal, and comparable. A conglomerated system produces fragmented data — forms are not linked, items are not consistently defined, and population-level quality indicators cannot be validly compared across organizations or over time.<br><br><strong>Three dimensions of interRAI integration:</strong><br><br>1. <strong>Common language:</strong> All interRAI instruments define core items — mood, psychosis, cognition, pain, function — using identical terminology across settings. A 'hallucination' in the inpatient psychiatry instrument means the same thing in the community mental health instrument, enabling cross-setting comparison.<br><br>2. <strong>Common care planning approach (CAPs):</strong> Clinical Assessment Protocols are embedded across instruments, triggering the same structured care planning response to clinical findings regardless of setting. This means a CAP triggered in emergency generates a response framework consistent with what would be triggered in long-term care for the same issue — continuity of clinical logic across settings.<br><br>3. <strong>Common core elements:</strong> Items like mood, pain, cognition, and functional status appear across all instruments, enabling longitudinal tracking of a person's trajectory as they move from home care to hospital to long-term care — providing a continuous picture of growth, development, and aging that a conglomerated system of standalone tools cannot construct."},
+{sec:"Short answer",type:"sa",stem:"The Auditor General identified several equity-related gaps in Ontario's CYMH system. Describe two specific equity gaps and, for each, identify one opportunity or initiative the report pointed to as a potential solution. (3 marks)",model:"<strong>Gap 1 — geographic inequity in intensive services:</strong> Only three secure treatment facilities exist in Ontario, all located in southern and eastern Ontario (GTA). Youth in northern and western Ontario requiring secure treatment must travel hundreds of kilometres from their families — directly contradicting the Child Youth and Family Services Act 2017's requirement for continuity within a family and cultural environment. Indigenous youth are disproportionately affected given the higher concentration of Indigenous communities in northern Ontario, where suicide rates are already 5 to 6 times the national average for youth aged 15 to 24.<br><strong>Opportunity:</strong> The Ontario Intensive Treatment Pathway (OTTP) — a hub model bringing together live-in treatment, day treatment, and in-home service providers — was identified as an emerging model to address fragmentation and improve geographic access to intensive services without requiring youth to travel to a single distant facility.<br><br><strong>Gap 2 — incomplete identity-based data limiting equitable service planning:</strong> The MOH's BI solution did not include complete race-based data — 86% of active client records had no race data, and the categories used were insufficient (12 categories, no sub-ethnic specification). Without this data, the ministry cannot determine whether Black youth, Indigenous youth, or 2SLGBTQQIA+ youth are receiving equitable access to culturally safe services.<br><strong>Opportunity:</strong> The Auditor General pointed to Nova Scotia's model — voluntary collection of race and language data at health card registration — as an approach that could enable Ontario to build a more complete sociodemographic picture without creating repeated disclosure burdens for clients."}
+];
+
+let answered={},correct=0,wrong=0;
+const total=Q.length;
+const autoTf=total-5;
+
+function buildExam(){
+const body=document.getElementById('exam-body');
+body.innerHTML='';
+let sec='';
+Q.forEach((q,i)=>{
+if(q.sec!==sec){
+sec=q.sec;
+const sh=document.createElement('div');
+sh.className='section-header';
+sh.textContent=q.sec+(q.sec==='Multiple choice'?' (1 mark each)':(q.sec==='True/False'?' — True or False':''));
+body.appendChild(sh);
+}
+const card=document.createElement('div');card.className='qcard';card.id='q'+i;
+const num=document.createElement('div');num.className='q-num';num.textContent='Question '+(i+1)+' of '+total;card.appendChild(num);
+const stem=document.createElement('div');stem.className='q-stem';stem.textContent=q.stem;card.appendChild(stem);
+if(q.type==='mc'){
+const opts=document.createElement('div');opts.className='options';
+q.opts.forEach((o,j)=>{
+const b=document.createElement('button');b.className='opt-btn';
+b.textContent=(['A','B','C','D'][j])+'. '+o;
+b.onclick=()=>answerMC(i,j);opts.appendChild(b);
+});
+card.appendChild(opts);
+}else if(q.type==='tf'){
+const row=document.createElement('div');row.className='tf-row';
+['True','False'].forEach((t,j)=>{
+const b=document.createElement('button');b.className='tf-btn';b.textContent=t;
+b.onclick=()=>answerTF(i,j===0);row.appendChild(b);
+});
+card.appendChild(row);
+}else{
+const ta=document.createElement('textarea');ta.className='sa-area';ta.placeholder='Write your answer here...';card.appendChild(ta);
+const rb=document.createElement('button');rb.className='sa-reveal-btn';rb.textContent='Show model answer';
+rb.onclick=()=>revealSA(i,card,q.model);card.appendChild(rb);
+}
+const fb=document.createElement('div');fb.className='feedback';fb.id='fb'+i;fb.style.display='none';card.appendChild(fb);
+body.appendChild(card);
+});
+}
+
+function answerMC(i,j){
+if(answered[i]!==undefined)return;
+answered[i]=j;
+const q=Q[i];const card=document.getElementById('q'+i);
+const btns=card.querySelectorAll('.opt-btn');
+const isCorrect=j===q.ans;
+btns[j].className='opt-btn '+(isCorrect?'correct':'wrong');
+if(!isCorrect)btns[q.ans].className='opt-btn reveal-correct';
+btns.forEach(b=>b.disabled=true);
+const fb=document.getElementById('fb'+i);fb.style.display='block';
+fb.className='feedback '+(isCorrect?'correct':'wrong');
+fb.textContent=(isCorrect?'Correct. ':'Incorrect. ')+q.exp;
+card.className='qcard '+(isCorrect?'answered-correct':'answered-wrong');
+if(isCorrect)correct++;else wrong++;
+updateStats();
+}
+
+function answerTF(i,val){
+if(answered[i]!==undefined)return;
+answered[i]=val;
+const q=Q[i];const card=document.getElementById('q'+i);
+const btns=card.querySelectorAll('.tf-btn');
+const isCorrect=val===q.ans;
+btns[val?0:1].className='tf-btn '+(isCorrect?'correct':'wrong');
+if(!isCorrect)btns[q.ans?0:1].className='tf-btn reveal-correct';
+btns.forEach(b=>b.disabled=true);
+const fb=document.getElementById('fb'+i);fb.style.display='block';
+fb.className='feedback '+(isCorrect?'correct':'wrong');
+fb.textContent=(isCorrect?'Correct. ':'Incorrect. ')+q.exp;
+card.className='qcard '+(isCorrect?'answered-correct':'answered-wrong');
+if(isCorrect)correct++;else wrong++;
+updateStats();
+}
+
+function revealSA(i,card,model){
+const existing=card.querySelector('.model-ans');
+if(existing){existing.style.display=existing.style.display==='none'?'block':'none';return;}
+const ma=document.createElement('div');ma.className='model-ans';ma.innerHTML=model;card.appendChild(ma);
+answered[i]='sa';
+updateStats();
+}
+
+function updateStats(){
+const done=Object.keys(answered).length;
+document.getElementById('stat-done').textContent=done;
+document.getElementById('stat-correct').textContent=correct;
+document.getElementById('stat-wrong').textContent=wrong;
+const mc_tf=Q.filter((q,i)=>answered[i]!==undefined&&q.type!=='sa').length;
+const pct=mc_tf>0?Math.round((correct/mc_tf)*100)+'%':'—';
+document.getElementById('stat-pct').textContent=pct;
+document.getElementById('prog').style.width=Math.round((done/total)*100)+'%';
+if(done===total){
+const rc=document.getElementById('result-card');rc.style.display='block';
+document.getElementById('res-score').textContent=correct+'/'+autoTf+' ('+Math.round((correct/autoTf)*100)+'%) on MC + T/F';
+const pctN=correct/autoTf;
+const msg=document.getElementById('res-msg');
+if(pctN>=0.85)msg.textContent='Strong — you are ready for this exam.';
+else if(pctN>=0.70)msg.textContent='Solid — revisit the missed questions and the readings behind them.';
+else msg.textContent='Keep at it — this set was the hardest. Review the explanations carefully.';
+}
+}
+
+function resetExam(){
+answered={};correct=0;wrong=0;
+document.getElementById('result-card').style.display='none';
+updateStats();buildExam();
+}
+
+buildExam();updateStats();
+</script>
+</body>
+</html>
