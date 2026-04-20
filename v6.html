@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HLTH 392 Final Exam Practice — Set 6</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;padding:2rem 1rem;min-height:100vh}
+.exam-wrap{max-width:700px;margin:0 auto}
+.header{margin-bottom:1.5rem}
+.header h1{font-size:22px;font-weight:500;margin-bottom:4px}
+.header p{font-size:13px;color:#666}
+.progress-bar{background:#e0e0d8;border-radius:4px;height:6px;margin:12px 0}
+.progress-fill{height:6px;border-radius:4px;background:#1D9E75;transition:width 0.3s}
+.stats{display:flex;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap}
+.stat{background:#fff;border:0.5px solid #ddd;border-radius:8px;padding:10px 16px;font-size:13px;color:#666;flex:1;min-width:80px;text-align:center}
+.stat span{display:block;font-size:20px;font-weight:500;color:#1a1a1a}
+.section-header{font-size:12px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:1.5rem 0 0.75rem;padding-bottom:6px;border-bottom:1px solid #e0e0d8}
+.qcard{background:#fff;border:1px solid #e0e0d8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:10px}
+.qcard.answered-correct{border-color:#1D9E75}
+.qcard.answered-wrong{border-color:#E24B4A}
+.q-num{font-size:12px;color:#888;margin-bottom:6px}
+.q-stem{font-size:14px;color:#1a1a1a;line-height:1.6;margin-bottom:10px;font-weight:500}
+.options{display:flex;flex-direction:column;gap:6px}
+.opt-btn{text-align:left;background:#f5f5f0;border:1px solid #e0e0d8;border-radius:8px;padding:8px 12px;font-size:13px;color:#1a1a1a;cursor:pointer;transition:background 0.15s;font-family:inherit}
+.opt-btn:hover:not(:disabled){background:#eaeae4}
+.opt-btn.correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.opt-btn.wrong{background:#FCEBEB;border-color:#E24B4A;color:#501313}
+.opt-btn.reveal-correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.feedback{font-size:12px;margin-top:8px;padding:8px 10px;border-radius:8px;line-height:1.5}
+.feedback.correct{background:#E1F5EE;color:#085041}
+.feedback.wrong{background:#FCEBEB;color:#501313}
+.tf-row{display:flex;gap:8px}
+.tf-btn{flex:1;background:#f5f5f0;border:1px solid #e0e0d8;border-radius:8px;padding:8px;font-size:13px;color:#1a1a1a;cursor:pointer;font-family:inherit}
+.tf-btn:hover:not(:disabled){background:#eaeae4}
+.tf-btn.correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.tf-btn.wrong{background:#FCEBEB;border-color:#E24B4A;color:#501313}
+.tf-btn.reveal-correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.sa-area{width:100%;min-height:90px;border:1px solid #e0e0d8;border-radius:8px;padding:8px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#f5f5f0;resize:vertical;margin-bottom:8px}
+.sa-reveal-btn{background:#f5f5f0;border:1px solid #ccc;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;color:#1a1a1a;font-family:inherit}
+.sa-reveal-btn:hover{background:#eaeae4}
+.model-ans{margin-top:8px;padding:10px;background:#f5f5f0;border-left:3px solid #1D9E75;border-radius:0 8px 8px 0;font-size:13px;color:#1a1a1a;line-height:1.6}
+.model-ans strong{font-weight:500}
+.result-card{background:#fff;border:1px solid #e0e0d8;border-radius:12px;padding:1.5rem;text-align:center;margin-top:1.5rem;display:none}
+.result-card h3{font-size:22px;font-weight:500;margin-bottom:6px}
+.result-card p{font-size:14px;color:#666;margin-bottom:4px}
+.reset-btn{margin-top:12px;background:#fff;border:1px solid #ccc;border-radius:8px;padding:8px 20px;font-size:14px;cursor:pointer;color:#1a1a1a;font-family:inherit}
+.reset-btn:hover{background:#f5f5f0}
+</style>
+</head>
+<body>
+<div class="exam-wrap">
+<div class="header">
+<h1>HLTH 392 final exam practice — set 6</h1>
+<p>44 questions — all new, no length-guessing shortcuts. MC, true/false, short answer.</p>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+<div class="stats">
+<div class="stat"><span id="stat-done">0</span>answered</div>
+<div class="stat"><span id="stat-correct">0</span>correct</div>
+<div class="stat"><span id="stat-wrong">0</span>wrong</div>
+<div class="stat"><span id="stat-pct">—</span>score</div>
+</div>
+<div id="exam-body"></div>
+<div class="result-card" id="result-card">
+<h3 id="res-score"></h3>
+<p id="res-msg"></p>
+<button class="reset-btn" onclick="resetExam()">Reset exam</button>
+</div>
+</div>
+
+<script>
+const Q=[
+{sec:"Multiple choice",type:"mc",stem:"Which of the following is NOT a dimension of mental capital as described in the course?",opts:["Emotional resources","Meaning","Physical fitness","Connectedness"],ans:2,exp:"The three dimensions of mental capital are emotional resources (including EQ), meaning, and connectedness — within oneself, with others, and with the environment. Physical fitness is not a named dimension of mental capital in this framework."},
+{sec:"Multiple choice",type:"mc",stem:"A patient with schizophrenia lives independently, holds part-time work, and reports high life satisfaction, but still hears voices daily. Which quadrant of the dual continua model does she occupy?",opts:["Poor mental health, no mental illness","Poor mental health, mental illness","Good mental health, no mental illness","Good mental health, mental illness"],ans:3,exp:"She has ongoing symptoms of mental illness (auditory hallucinations) but strong mental health indicators — independence, employment, and life satisfaction. This is the top-right quadrant: good mental health, mental illness present. The dual continua model separates these two constructs."},
+{sec:"Multiple choice",type:"mc",stem:"In the context of systems thinking, what does the 'purpose' of a mental health system refer to?",opts:["The budget allocated to the system annually","The shared goal or function the system is designed to achieve","The number of organizations operating within the system","The geographic boundaries of the system's service area"],ans:1,exp:"Purpose is the third component of a system alongside elements and interconnections. It is the shared goal or function — the reason the system exists. This is often a policy problem, a recovery vision, or an illness being addressed. Budget, geography, and number of organizations are not the purpose."},
+{sec:"Multiple choice",type:"mc",stem:"The 20th century shift from asylums to psychiatric hospitals brought which of the following changes?",opts:["Community integration as the primary treatment goal","Rise of DSM, ICD, pharma interventions, and psychoanalytic approaches","Elimination of involuntary treatment entirely","Reduction in the number of people receiving institutional care"],ans:1,exp:"The 20th century psychiatric hospital era was marked by the rise of classification systems (DSM, ICD), pharmaceutical interventions, and psychoanalytic and psychodynamic approaches to therapy. Community integration was not a goal of this era — that came later with deinstitutionalization."},
+{sec:"Multiple choice",type:"mc",stem:"Which of the following best describes 'internal consistency' as a reliability method used in psychometric evaluation of interRAI instruments?",opts:["Testing whether the same clinician gets the same score on two separate occasions","Using statistical approaches to evaluate whether items within a scale cluster together as expected, without requiring a second administration","Having two independent clinicians complete the same assessment and comparing scores","Comparing interRAI scores to scores on a gold-standard external measure"],ans:1,exp:"Internal consistency is a statistical approach (e.g., Cronbach's alpha) that evaluates whether items within a scale hang together — it does not require a second assessment or a second rater. The Hirdes reading describes it as useful precisely because it avoids the cost and burden of re-administration."},
+{sec:"Multiple choice",type:"mc",stem:"A family physician in Ontario is concerned about a patient who has stopped eating, is expressing delusional beliefs, and is refusing all offers of help. The physician believes the patient may harm herself. Which form does the physician complete to initiate a psychiatric assessment?",opts:["Form 3","Form 1","Form 6","Form 4A"],ans:1,exp:"Form 1 is the Application for Psychiatric Assessment. It is completed by a physician who has reasonable cause to believe a person has a mental disorder and meets Box A or Box B criteria. It authorizes the person to be brought to a psychiatric facility for assessment — it is not an admission certificate."},
+{sec:"Multiple choice",type:"mc",stem:"According to the course, which of the following is the correct ordering of the CYMH core services from least to most intensive?",opts:["Crisis support, brief services, targeted prevention, counselling","Targeted prevention, brief services, counselling and therapy, intensive treatment","Intensive treatment, specialized consultation, family capacity building, targeted prevention","Brief services, targeted prevention, intensive treatment, crisis support"],ans:1,exp:"The MOH CYMH core services in order of increasing severity of need: targeted prevention, brief services, counselling and therapy, family capacity building, specialized consultation and assessment, crisis support, and intensive treatment services. Targeted prevention is the least intensive; intensive treatment is the most."},
+{sec:"Multiple choice",type:"mc",stem:"The At Home / Chez Soi trial tested Housing First with Assertive Community Treatment. Which population was the intervention designed for?",opts:["Youth aging out of foster care","Adults with serious mental illness experiencing homelessness","Older adults transitioning from hospital to long-term care","Children with concurrent mental health and substance use disorders"],ans:1,exp:"At Home / Chez Soi was a Canadian trial of Housing First — providing stable housing plus ACT supports — for adults with serious mental illness who were experiencing homelessness. The trial found the intervention cost-effective regardless of participant characteristics including sex, substance use, functioning level, and prior arrest history."},
+{sec:"Multiple choice",type:"mc",stem:"Which statement about the LIHC safer opioid supply program's comparison group is accurate, based on the Gomes et al. study?",opts:["The comparison group received methadone as their primary treatment","The comparison group was identical to the SOS group on all health and social variables","The comparison group was matched on demographic and clinical characteristics but differed on unmeasured social determinants","The comparison group was drawn from a different province"],ans:2,exp:"The Gomes study used a comparison group matched on demographic and clinical characteristics. However, the authors acknowledge that SOS clients had greater social complexity — higher rates of homelessness, street involvement — that could not be fully accounted for, which is a stated limitation of the study design."},
+{sec:"Multiple choice",type:"mc",stem:"'Concurrent disorders treatment' in the contemporary addiction system refers to which of the following?",opts:["Treating two different physical health conditions at the same time","Recognizing and treating co-occurring mental health and substance use conditions together rather than sequentially","Offering treatment at two different sites simultaneously","Prescribing two medications concurrently for opioid use disorder"],ans:1,exp:"Concurrent disorders treatment recognizes that mental illness and substance use disorders frequently co-occur and that treating only one while ignoring the other produces poor outcomes. Contemporary addiction services emphasize integrated concurrent disorders treatment — addressing both simultaneously, with case management to coordinate social circumstances."},
+{sec:"Multiple choice",type:"mc",stem:"According to the course, what key data was NOT available to researchers in the Gomes et al. SOS study, limiting their cost analysis?",opts:["Emergency department visit costs","Costs of primary care provided through community health centres","Hospital admission costs","Costs of infections treated in hospital"],ans:1,exp:"The authors explicitly acknowledge they could not access costs of primary care provided through community health centres — meaning the cost savings estimate is likely an underestimate. If primary care utilization changed among SOS participants, those changes are invisible in the cost analysis."},
+{sec:"Multiple choice",type:"mc",stem:"According to the course, which of the following best describes what happened to addiction services between the 1800s and the mid-20th century?",opts:["Steady expansion of publicly funded community-based addiction treatment","Criminalization, fragmentation, and a private residential model inaccessible to those without means","Rapid integration with psychiatric hospital services","Harm reduction adoption as the dominant policy approach"],ans:1,exp:"The historical arc: early specialized institutions closed due to stigma and poor evaluation; narcotics farms (drug prisons) emerged in the 1930s; private residential services developed for those who could pay; everyone else was criminalized. Fragmentation and criminalization defined this era — not integration, not harm reduction, not public funding."},
+{sec:"Multiple choice",type:"mc",stem:"The Safer Streets, Stronger Communities Act prohibits supervised injection sites within how many metres of a school or childcare centre?",opts:["100 metres","200 metres","500 metres","50 metres"],ans:1,exp:"The Safer Streets, Stronger Communities Act prohibits the operation of drug injection sites within 200 metres of a school or childcare centre. This restriction was used to close or relocate existing supervised consumption sites and transition them to HART Hubs."},
+{sec:"Multiple choice",type:"mc",stem:"A CYMH agency in rural northern Ontario reports that it cannot provide intensive treatment services to a 14-year-old with severe self-harm because the nearest resource is 800 km away. The Auditor General identified which specific funding gap as contributing to this problem?",opts:["MOH does not fund telepsychiatry in northern Ontario","MOH does not provide direct travel subsidies for youth accessing intensive services outside their region","MOH caps intensive service funding at a maximum of 90 days","MOH requires court orders for all intensive treatment referrals in northern Ontario"],ans:1,exp:"The Auditor General found that MOH does not provide direct subsidies for travel to areas with intensive services — costs come out of agency budgets. Combined with the geographic concentration of secure treatment facilities in southern Ontario, this creates a structural barrier to access for northern youth that the funding model does not address."},
+{sec:"Multiple choice",type:"mc",stem:"In the Domenech-Abella study, which environmental variable had the WEAKEST overall association with mental health among older adults?",opts:["Social cohesion","Social participation","Traffic density","Mobility"],ans:2,exp:"Traffic density (too much traffic) and access to basic services had the weakest associations with mental health in the study — their effects were smaller and less significant compared to mobility, safety, social cohesion, and social participation. Social cohesion had the strongest association."},
+{sec:"Multiple choice",type:"mc",stem:"According to the Week 12 guest lecture, which interRAI instrument was mandated by policy for long-stay home care clients, requiring a nurse to administer it in the client's home?",opts:["interRAI Check-Up Self-Report","interRAI Community Mental Health","interRAI Home Care","interRAI MDS 3.0"],ans:2,exp:"The interRAI Home Care assessment is mandated by policy for long-stay home care clients — a homecare agency must send a nurse to the home to complete it. This is distinct from the Check-Up Self-Report, which is shorter, optional, and used in primary care settings."},
+{sec:"Multiple choice",type:"mc",stem:"The course describes the relationship between mental health problems and the criminal justice system. Which of the following terms describes police as the first-line point of contact for people with mental illness?",opts:["Decriminalization","Transinstitutionalization","Criminalization","Street triage"],ans:2,exp:"The Hirdes reading and course lecture describe criminalization as a consequence of deinstitutionalization without community support — police become the first-line contact for people with mental illness in crisis, leading to arrest and incarceration rather than treatment. This is distinct from transinstitutionalization (the outcome) and decriminalization (a policy response)."},
+{sec:"Multiple choice",type:"mc",stem:"A hospital quality team finds that 35% of its long-term care residents with dementia who have no current hallucinations or delusions are receiving antipsychotics. Which of the following best characterizes this finding?",opts:["Best practice — prevention of symptom emergence","Off-label prescribing inconsistent with clinical guidelines","Standard of care for all dementia patients in LTC","Required by provincial policy for residents in complex continuing care"],ans:1,exp:"Clinical guidelines permit antipsychotics for short-term management of actual psychotic or serious behavioural symptoms — not prophylactically. Prescribing to residents without current symptoms is off-label use, inconsistent with guidelines, and associated with serious harms including mortality. The course presented this as a quality indicator problem, particularly among ALC and LTC populations."},
+{sec:"Multiple choice",type:"mc",stem:"The interRAI suite's 'common conceptual basis' means which of the following?",opts:["All instruments are printed on the same standardized paper forms","Instruments are designed to support care planning and embed algorithms that trigger clinical responses — consistently across all settings","All instruments use identical item sets regardless of care setting","All instruments were developed by the same research team in the same country"],ans:1,exp:"Common conceptual basis means that all interRAI instruments share the same underlying design philosophy: support care planning, embed algorithms (CAPs) that trigger clinical responses, and prioritize function and strengths over diagnosis. This is distinct from having identical items — instruments are curated for each setting but share the same conceptual logic."},
+{sec:"Multiple choice",type:"mc",stem:"Which of the following correctly pairs a suicide risk indicator with its natural course stage, as described in the course's Week 9 content on suicide surveillance?",opts:["Hallucinations — clinical stage","Suicidal planning — clinical stage","Behavioural warning signs — susceptibility stage","Previous suicide attempt — preclinical stage"],ans:1,exp:"The natural course of disease framework for suicide includes: susceptibility (e.g., mental health conditions), preclinical (e.g., behavioural warning signs), and clinical (e.g., suicide planning, active ideation). Suicidal planning is a clinical-stage indicator. The in-class trivia confirmed that a tool measuring suicide risk should include all three stages."},
+{sec:"Multiple choice",type:"mc",stem:"Which of the following statements about the interRAI ChYMH instrument is accurate?",opts:["It is used for children aged 6 to 12 only","It is used for children aged 4 to 18 in mental health settings and was mandated for inpatient beds in 2005","It is exclusively a self-report tool completed by the child","It does not include care planning protocols — only symptom measurement"],ans:1,exp:"The interRAI ChYMH is designed for children aged 4 to 18 in mental health settings. Implementation in inpatient beds was mandated in Ontario in 2005. It is completed by clinicians (not self-reported), and it includes care planning protocols, preliminary resource intensity descriptions, and embedded scales for symptom severity and risk."},
+{sec:"Multiple choice",type:"mc",stem:"According to the course, what is the primary reason that 'death by suicide' is considered a limited population-level indicator of mental health system quality?",opts:["It is measured inconsistently across provinces","It captures only the most extreme outcome, missing the vast majority of people with unmet mental health needs","Suicide data takes too long to collect and report to be useful for system monitoring","It is influenced by weather and seasonal factors making it unreliable"],ans:1,exp:"Suicide rate captures only the most severe endpoint of mental health system failure. The much larger population experiencing mental illness, distress, and inadequate access — but not dying by suicide — is invisible to this indicator. The Quadruple Aim requires indicators that capture experience, access, and outcomes across the full population."},
+{sec:"Multiple choice",type:"mc",stem:"Nova Scotia's approach to race-based data collection — cited as an opportunity in the Auditor General report — involves collecting this data at which point?",opts:["At every clinical encounter across all health settings","During health card application or renewal","Through mandatory annual surveys sent to all households","Through school-based screening programs for children under 18"],ans:1,exp:"Nova Scotia began collecting voluntary race and language data when people apply for or renew their health card. The Auditor General cited this as a model Ontario could adopt — collecting sociodemographic data once at the point of health card registration, avoiding repeated disclosure burdens at each clinical encounter."},
+{sec:"True/False",type:"tf",stem:"The 'Quadruple Aim' adds clinician and provider wellbeing to the original Triple Aim of patient experience, population health, and cost reduction.",ans:true,exp:"True. The Triple Aim (Berwick et al.) covers patient experience, population health, and per capita cost. The Quadruple Aim adds provider wellbeing — recognizing that a burnt-out workforce cannot sustain quality care. The course uses the Quadruple Aim as a framework for evaluating whether mental health system indicators are comprehensive enough."},
+{sec:"True/False",type:"tf",stem:"Under the HCCA in Ontario, a Substitute Decision Maker may override a patient's previously expressed capable wishes if they believe a different treatment would produce better outcomes.",ans:false,exp:"False. An SDM must follow the incapable person's prior capable and applicable wishes — they cannot override them based on their own judgment about outcomes. Only if no prior wish exists or applies does the SDM use the best interests standard. This was directly tested on the midterm (Q13)."},
+{sec:"True/False",type:"tf",stem:"According to the Hirdes reading, one problem with conglomerated assessment systems is that handwritten notes on incomplete forms in filing cabinets serve little purpose for population-level analysis.",ans:true,exp:"True. The Hirdes reading explicitly uses this image — handwritten notes on incomplete forms in cabinets — to illustrate why conglomerated, non-automated data systems cannot support population-level analysis, quality indicators, or longitudinal tracking of outcomes."},
+{sec:"True/False",type:"tf",stem:"The interRAI Community Mental Health instrument is completed only at intake and not repeated during the episode of care.",ans:false,exp:"False. The interRAI Community Mental Health instrument is completed at intake, discharge, and every 6 months during an ongoing episode of care. Repeated administration over time is what enables longitudinal outcome monitoring and measurement-based care — a core purpose of the integrated system."},
+{sec:"True/False",type:"tf",stem:"According to the course, the scoping review of decriminalization studies found that fewer than 10% of studies examined justice system involvement, mental health, or addiction treatment outcomes.",ans:true,exp:"True. The scoping review of 114 studies found the evidence base was narrowly focused on prevalence of use. Fewer than 10% examined justice involvement, mental health outcomes, or addiction treatment access — the outcomes that actually matter for health system planning around decriminalization."},
+{sec:"True/False",type:"tf",stem:"One Stop Talk — a phone number that children and youth under 18 can call to access mental health services — was developed by a lead agency in Ontario as an example of coordinated access.",ans:true,exp:"True. One Stop Talk was developed in 2020 by a lead agency (LAC) as a single-point entry model — a phone number providing direct access to mental health services for youth under 18, with navigation to longer-term services if needed. It was cited as an example of coordinated access in the Auditor General report."},
+{sec:"True/False",type:"tf",stem:"According to the course, improving neighbourhood walkability and access to parks is supported by systematic review evidence as a strong primary influence on older adults' mental health.",ans:false,exp:"False. The course and Domenech-Abella reading note that systematic reviews have found only limited support for the built environment as a primary influence on older adults' health and functioning. The association exists but the mechanism and strength are less established than for social environment factors. The Domenech-Abella study itself found traffic density and basic services had weaker associations than social cohesion."},
+{sec:"True/False",type:"tf",stem:"The interRAI MDS instrument used in long-term care was first developed more than 25 years ago.",ans:true,exp:"True. The Hirdes reading states that interRAI Home Care and nursing home instruments were first developed more than 25 years ago — making them among the most established and validated instruments in the suite. The newer instruments, particularly those for children and youth, were developed more recently."},
+{sec:"True/False",type:"tf",stem:"According to the course, the Ontario Mental Health Reporting System is the data source used to capture hospital records for all types of inpatient care in Ontario including psychiatry.",ans:false,exp:"False. The Discharge Abstract Database captures hospital records for most inpatient care in Ontario — but explicitly excludes inpatient psychiatry. Inpatient psychiatry in Ontario is captured by the Ontario Mental Health Reporting System (OMHRS). This distinction was taught in the Week 6 data sidebar."},
+{sec:"True/False",type:"tf",stem:"Black children and youth in Ontario experience disproportionately higher rates of emergency care and justice system involvement related to mental health, compared to white children and youth.",ans:true,exp:"True. The Auditor General report cites a 2022 Black Health Alliance report finding that Black children and youth encounter systemic barriers to mental health care including longer wait times, difficulty accessing services, and disproportionate rates of emergency care and justice involvement compared to white children and youth."},
+{sec:"True/False",type:"tf",stem:"According to the Domenech-Abella study, social participation was measured at the macro level using neighbourhood-wide surveys of civic engagement.",ans:false,exp:"False. Social participation was measured at the micro level — individual-level items about whether the respondent talked to neighbours and kept informed about neighbourhood affairs. Neighbourhood social cohesion was the macro-level measure (perceived trust and mutual support across the neighbourhood). The distinction between micro and macro levels of social environment measurement is a key methodological point of the paper."},
+{sec:"True/False",type:"tf",stem:"According to the course, the Children's Mental Health Ontario organization represents Ontario's publicly funded child and youth mental health centres — over 100 organizations.",ans:true,exp:"True. Children's Mental Health Ontario represents Ontario's publicly funded CYMH centres — 100+ organizations. The course notes that information should be available in primary care offices and schools so families can be directed to appropriate services. It is distinct from the Knowledge Institute, which is a centre of excellence housed at CHEO."},
+{sec:"Short answer",type:"sa",stem:"You are a policy analyst advising a northern Ontario health unit on reducing loneliness and social isolation among older adults living at home. Drawing specifically on the Domenech-Abella et al. findings and the Week 12 interRAI guest lecture, recommend two evidence-informed interventions and explain the mechanism behind each. (4 marks)",model:"<strong>Intervention 1 — improving neighbourhood mobility and safety infrastructure:</strong> Domenech-Abella found that low mobility (difficulty moving by foot or bike) was significantly associated with lower mental health, with 25.4% of this association mediated by loneliness — primarily emotional loneliness. In northern Ontario, winter conditions, distance between services, and lack of pedestrian infrastructure are major mobility barriers for older adults. An intervention could include subsidized accessible transportation to community programs, ice and snow removal on pedestrian paths, or mobile outreach workers who bring social programming to homebound clients. The mechanism: removing physical barriers to movement enables older adults to access destinations where they can form close trusting relationships — the component of emotional loneliness most strongly linked to mental health outcomes.<br><br><strong>Intervention 2 — using interRAI data to identify and target high-risk isolation typologies before crisis:</strong> The Week 12 guest lecture described how the Red Cross / interRAI project in Huron-Perth used interRAI Home Care assessment data to classify older adults into four isolation typologies: lonely, socially isolated, both, and neither. This typology-based approach allows targeted intervention — someone who is socially isolated but not lonely may need social skill building or group programming, while someone who is emotionally lonely (lacking close trusted relationships) despite having social contact needs a different, relationship-depth focused intervention. In northern Ontario, where interRAI Home Care is mandated for long-stay clients, this data is already being collected — the intervention is to build a referral pathway from the assessment to community social prescribing supports, matching the intervention type to the isolation typology rather than offering generic programming to everyone."},
+{sec:"Short answer",type:"sa",stem:"Explain the distinction between 'voluntary,' 'informal,' and 'involuntary' patients under the Ontario Mental Health Act. For each, describe one legal right or limitation specific to that status. (3 marks)",model:"<strong>Voluntary patient:</strong> A person who has made a capable decision to consent to admission to a psychiatric facility. They must be in a position to exercise free will — they cannot be under any coercion. Legal right/limitation: a voluntary patient may leave the facility at any time, even against medical advice (AMA). If they subsequently harm themselves or another person, the discharge or admission assessment will be closely reviewed — but they cannot be restrained solely on the basis of their voluntary status.<br><br><strong>Informal patient:</strong> A person admitted with the consent of another person (a substitute decision maker) under section 24 of the HCCA — most commonly used for persons under 16 who lack capacity to consent themselves. Legal right/limitation: incapable adolescents aged 12 to 15 admitted as informal patients have the right to apply to the Consent and Capacity Board to determine whether they need observation, care, and treatment in a psychiatric facility. Persons 16 or older who object cannot be admitted informally without a guardian or attorney for personal care with express authority.<br><br><strong>Involuntary patient:</strong> A person detained against their will following a psychiatrist's assessment finding they meet criteria under section 20 of the MHA — typically documented via Form 3. Legal right/limitation: an involuntary patient has the right to request a Consent and Capacity Board hearing to review the Form 3. The CCB is the quasi-judicial body that can rescind the certificate if criteria are not met. Importantly, the psychiatric designation applies to the entire facility — even if the patient is transferred to another unit (e.g., CT scan), they remain an involuntary psychiatric patient."},
+{sec:"Short answer",type:"sa",stem:"Using the course content on addictions systems, explain how the contemporary addiction treatment system in Ontario differs from the historical model on three specific dimensions. For each dimension, give one concrete example. (3 marks)",model:"<strong>Dimension 1 — from abstinence requirement to patient-centred goals:</strong> The historical model — including AA and early residential treatment — was grounded in abstinence as the prerequisite and measure of success. Contemporary care recognizes that patients may be at different places in their readiness for change, and treatment should be oriented to the person's own goals — including harm reduction, reduced use, or managed use rather than total abstinence. Example: an SOS program participant continues to receive prescribed hydromorphone while also engaging with primary care, housing supports, and at their own pace working toward other goals — abstinence is not required for participation.<br><br><strong>Dimension 2 — from criminalization to public health framing:</strong> Historically, substance use was treated as a criminal and moral failing — people who could not afford private residential care were criminalized. The contemporary model treats addiction as a health condition shaped by biological, psychological, and social factors. Example: Rapid Access Addiction Medicine clinics provide same-day physician assessment and treatment initiation without requiring police or court involvement — the entry point is a health setting, not the justice system.<br><br><strong>Dimension 3 — from fragmentation to concurrent disorders integration:</strong> The historical addiction system was fragmented from the mental health system — no interconnections between the two sectors. Contemporary care recognizes that concurrent mental health and substance use disorders are the norm, not the exception. Example: the course's Belleville video illustrates what happens without integration — people cycle through emergency, courts, and shelters because no single element addresses both needs simultaneously. Youth Wellness Hubs represent the integration response: one location delivering mental health, substance use, housing, education, and social services together."}
+];
+
+let answered={},correct=0,wrong=0;
+const total=Q.length;
+const autoTf=total-5;
+
+function buildExam(){
+const body=document.getElementById('exam-body');
+body.innerHTML='';
+let sec='';
+Q.forEach((q,i)=>{
+if(q.sec!==sec){
+sec=q.sec;
+const sh=document.createElement('div');
+sh.className='section-header';
+sh.textContent=q.sec+(q.sec==='Multiple choice'?' (1 mark each)':(q.sec==='True/False'?' — True or False':''));
+body.appendChild(sh);
+}
+const card=document.createElement('div');card.className='qcard';card.id='q'+i;
+const num=document.createElement('div');num.className='q-num';num.textContent='Question '+(i+1)+' of '+total;card.appendChild(num);
+const stem=document.createElement('div');stem.className='q-stem';stem.textContent=q.stem;card.appendChild(stem);
+if(q.type==='mc'){
+const opts=document.createElement('div');opts.className='options';
+q.opts.forEach((o,j)=>{
+const b=document.createElement('button');b.className='opt-btn';
+b.textContent=(['A','B','C','D'][j])+'. '+o;
+b.onclick=()=>answerMC(i,j);opts.appendChild(b);
+});
+card.appendChild(opts);
+}else if(q.type==='tf'){
+const row=document.createElement('div');row.className='tf-row';
+['True','False'].forEach((t,j)=>{
+const b=document.createElement('button');b.className='tf-btn';b.textContent=t;
+b.onclick=()=>answerTF(i,j===0);row.appendChild(b);
+});
+card.appendChild(row);
+}else{
+const ta=document.createElement('textarea');ta.className='sa-area';ta.placeholder='Write your answer here...';card.appendChild(ta);
+const rb=document.createElement('button');rb.className='sa-reveal-btn';rb.textContent='Show model answer';
+rb.onclick=()=>revealSA(i,card,q.model);card.appendChild(rb);
+}
+const fb=document.createElement('div');fb.className='feedback';fb.id='fb'+i;fb.style.display='none';card.appendChild(fb);
+body.appendChild(card);
+});
+}
+
+function answerMC(i,j){
+if(answered[i]!==undefined)return;
+answered[i]=j;
+const q=Q[i];const card=document.getElementById('q'+i);
+const btns=card.querySelectorAll('.opt-btn');
+const isCorrect=j===q.ans;
+btns[j].className='opt-btn '+(isCorrect?'correct':'wrong');
+if(!isCorrect)btns[q.ans].className='opt-btn reveal-correct';
+btns.forEach(b=>b.disabled=true);
+const fb=document.getElementById('fb'+i);fb.style.display='block';
+fb.className='feedback '+(isCorrect?'correct':'wrong');
+fb.textContent=(isCorrect?'Correct. ':'Incorrect. ')+q.exp;
+card.className='qcard '+(isCorrect?'answered-correct':'answered-wrong');
+if(isCorrect)correct++;else wrong++;
+updateStats();
+}
+
+function answerTF(i,val){
+if(answered[i]!==undefined)return;
+answered[i]=val;
+const q=Q[i];const card=document.getElementById('q'+i);
+const btns=card.querySelectorAll('.tf-btn');
+const isCorrect=val===q.ans;
+btns[val?0:1].className='tf-btn '+(isCorrect?'correct':'wrong');
+if(!isCorrect)btns[q.ans?0:1].className='tf-btn reveal-correct';
+btns.forEach(b=>b.disabled=true);
+const fb=document.getElementById('fb'+i);fb.style.display='block';
+fb.className='feedback '+(isCorrect?'correct':'wrong');
+fb.textContent=(isCorrect?'Correct. ':'Incorrect. ')+q.exp;
+card.className='qcard '+(isCorrect?'answered-correct':'answered-wrong');
+if(isCorrect)correct++;else wrong++;
+updateStats();
+}
+
+function revealSA(i,card,model){
+const existing=card.querySelector('.model-ans');
+if(existing){existing.style.display=existing.style.display==='none'?'block':'none';return;}
+const ma=document.createElement('div');ma.className='model-ans';ma.innerHTML=model;card.appendChild(ma);
+answered[i]='sa';
+updateStats();
+}
+
+function updateStats(){
+const done=Object.keys(answered).length;
+document.getElementById('stat-done').textContent=done;
+document.getElementById('stat-correct').textContent=correct;
+document.getElementById('stat-wrong').textContent=wrong;
+const mc_tf=Q.filter((q,i)=>answered[i]!==undefined&&q.type!=='sa').length;
+const pct=mc_tf>0?Math.round((correct/mc_tf)*100)+'%':'—';
+document.getElementById('stat-pct').textContent=pct;
+document.getElementById('prog').style.width=Math.round((done/total)*100)+'%';
+if(done===total){
+const rc=document.getElementById('result-card');rc.style.display='block';
+document.getElementById('res-score').textContent=correct+'/'+autoTf+' ('+Math.round((correct/autoTf)*100)+'%) on MC + T/F';
+const pctN=correct/autoTf;
+const msg=document.getElementById('res-msg');
+if(pctN>=0.85)msg.textContent='Excellent — strong command of the material.';
+else if(pctN>=0.70)msg.textContent='Solid — review missed questions and their explanations.';
+else msg.textContent='Keep grinding — no shortcuts on this one.';
+}
+}
+
+function resetExam(){
+answered={};correct=0;wrong=0;
+document.getElementById('result-card').style.display='none';
+updateStats();buildExam();
+}
+
+buildExam();updateStats();
+</script>
+</body>
+</html>
